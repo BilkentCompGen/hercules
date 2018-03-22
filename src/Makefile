@@ -10,7 +10,7 @@ LIB=../utils/lib/
 LIB_PARAMS=$(foreach d, $(LIB), -L$d)
 
 #paramaters as suggested by seqan
-CXXLAGS=$(INC_PARAMS) -std=c++14 -O3 -DNDEBUG -DSEQAN_HAS_ZLIB=1 -DSEQAN_HAS_BZIP2=1 -W -Wall -pedantic 
+CXXLAGS=$(INC_PARAMS) -std=c++14 -O3 -DNDEBUG -DSEQAN_HAS_ZLIB=1 -DSEQAN_HAS_BZIP2=1 -W -Wall -pedantic
 LDFLAGS=
 LDLIBS=$(LIB_PARAMS) -lz -lbz2
 
@@ -30,7 +30,7 @@ else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
         CXXLAGS += -fopenmp
-        LDLIBS +=  -lpthread -lrt
+        LDLIBS += -lpthread -lrt -lgomp
     endif
     ifeq ($(UNAME_S),Darwin)
         CXXLAGS +=
@@ -48,7 +48,7 @@ all: $(OBJS)
 	mkdir -p ../bin/
 	$(CXX) $(LDFLAGS) -o ../bin/hercules $(OBJS) $(LDLIBS)
 
-main.o: main.cpp CommandLineOptions.h bloom_filter.hpp ../utils/lib/libz.a ../utils/lib/libbz2.a ../utils/include/seqan
+main.o: main.cpp CommandLineOptions.h bloom_filter.hpp ../utils/lib/libz.a ../utils/lib/libbz2.a ../utils/include/seqan/basic.h
 	$(CXX) $(CXXLAGS) -c -o main.o main.cpp $(LDLIBS)
 
 ../utils/lib/libz.a: ../utils/zlib-1.2.11.tar.gz
@@ -65,7 +65,8 @@ main.o: main.cpp CommandLineOptions.h bloom_filter.hpp ../utils/lib/libz.a ../ut
 	cd ../utils/bzip2-1.0.6/; make install PREFIX=../
 	rm -rf ../utils/bzip2-1.0.6/
 
-../utils/include/seqan: ../utils/seqan-library-2.4.0.tar.xz
+../utils/include/seqan/basic.h: ../utils/seqan-library-2.4.0.tar.xz
+	rm -rf utils/include/seqan/
 	mkdir -p ../utils/include/
 	mkdir -p ../utils/lib/
 	tar -xf ../utils/seqan-library-2.4.0.tar.xz -C ../utils/
