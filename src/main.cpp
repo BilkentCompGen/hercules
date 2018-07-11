@@ -648,7 +648,7 @@ void correctLongRead(HMMParameters parameters, const std::string& longRead, std:
     sequencingGraph[0] = SequencingNode(0, 0, parameters.maxInsertion, '\0', longRead[0]);
     for(int curIn = 1; curIn <= parameters.maxInsertion; ++curIn)
         sequencingGraph[curIn] = SequencingNode(curIn, 0, parameters.maxInsertion, '\0', longRead[0]);
-    for(int curCharacter = 1; curCharacter <= (int)longRead.size(); ++curCharacter){
+    for(int curCharacter = 1; curCharacter < (int)longRead.size(); ++curCharacter){
         sequencingGraph[MATCH_OFFSET(curCharacter, 0, parameters.maxInsertion)] =
             SequencingNode(MATCH_OFFSET(curCharacter, 0, parameters.maxInsertion), curCharacter, parameters.maxInsertion,
                            longRead[curCharacter-1], longRead[curCharacter]);
@@ -657,6 +657,15 @@ void correctLongRead(HMMParameters parameters, const std::string& longRead, std:
                 SequencingNode(INSERTION_OFFSET(curCharacter, 0, curIn, parameters.maxInsertion), curCharacter,
                                parameters.maxInsertion, longRead[curCharacter-1], longRead[curCharacter]);
     }
+
+    sequencingGraph[MATCH_OFFSET((int)longRead.size(), 0, parameters.maxInsertion)] =
+            SequencingNode(MATCH_OFFSET((int)longRead.size(), 0, parameters.maxInsertion), (int)longRead.size(), parameters.maxInsertion,
+                           longRead[(int)longRead.size()-1], '\0');
+        for(int curIn = 1; curIn <= parameters.maxInsertion; ++curIn)
+            sequencingGraph[INSERTION_OFFSET((int)longRead.size(), 0, curIn, parameters.maxInsertion)] =
+                SequencingNode(INSERTION_OFFSET((int)longRead.size(), 0, curIn, parameters.maxInsertion), (int)longRead.size(),
+                               parameters.maxInsertion, longRead[(int)longRead.size()-1], '\0');
+
     sequencingGraph[END_STATE(longRead.size(), parameters.maxInsertion)] =
         SequencingNode((int)END_STATE(longRead.size(),parameters.maxInsertion), (int)longRead.size()+1, parameters.maxInsertion,
                        '\0', '\0');
@@ -988,13 +997,15 @@ void correctReadThreadPool(HMMParameters parameters, FaiIndex& longIndex, FaiInd
                 readSequence(curSeq, longIndex, index);
                 //read the current long read's original id
                 curSeqId = sequenceName(longIndex, index);
-                
+                int seqId = -1;
+
                 //id of the last "unproccessed" record in the alignment file. Id-names 0-based as well
-                int seqId = std::stoi(toCString(getContigName(record, alignmentFileIn)));
+                if(!atEnd(alignmentFileIn))
+                	seqId = std::stoi(toCString(getContigName(record, alignmentFileIn)));
                 
                 //did we hit the current alignment or there is no alignment for the current long read?
                 //since the alignment file is **sorted** we can assume there is no alignment if index+1 < seqId
-                if(index < seqId) shouldCorrect = false;
+                if(seqId < 0 || index < seqId) shouldCorrect = false;
                 else if(index == seqId){ //there is an alignment. so read the aligned short reads.
                     coverage.resize(length(curSeq));
                     std::fill(coverage.begin(), coverage.end(), false);

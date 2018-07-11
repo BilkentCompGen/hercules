@@ -10,7 +10,7 @@ LIB=../utils/lib/
 LIB_PARAMS=$(foreach d, $(LIB), -L$d)
 
 #paramaters as suggested by seqan
-CXXLAGS=$(INC_PARAMS) -std=c++14 -O3 -DNDEBUG -DSEQAN_HAS_ZLIB=1 -DSEQAN_HAS_BZIP2=1 -W -Wall -pedantic
+CXXLAGS=$(INC_PARAMS) -std=c++14 -O3 -DNDEBUG -DSEQAN_HAS_ZLIB=1 -DSEQAN_HAS_BZIP2=1 -DSEQAN_DISABLE_VERSION_CHECK=YES -W -Wall -pedantic
 LDFLAGS=
 LDLIBS=$(LIB_PARAMS) -lz -lbz2
 

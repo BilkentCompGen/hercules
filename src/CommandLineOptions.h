@@ -30,7 +30,7 @@ struct CommandLineOptions
     CommandLineOptions():
     filterSize(100), maxDeletion(10), maxInsertion(3), matchTransition(0.70), insertionTransition(0.25), shouldQuite(false),
     matchEmission(0.97), maxThread(1), mapQ(0), deletionTransitionFactor(2.5), shouldOutputCoverage(false), shouldCompress(true),
-    maxCoverage(10), nonNCount(40), shouldApplyBloomFilter(false){}
+    maxCoverage(1), nonNCount(40), shouldApplyBloomFilter(false){}
     
     seqan::CharString longInputFile;
     seqan::CharString alignmentFile;
