@@ -59,3 +59,19 @@ Assume that you have your alignment file `alignment.bam`, original long reads `l
 ./hercules -2 -li long.fasta -ai alignment.bam -si preprocessing/short.fasta -t 30 -o corrected_long.fasta
 ```
 Resulting fasta file `corrected_long.fasta` will be the final output of Hercules.
+
+
+## Running Hercules via Docker
+
+To build a Docker image:
+
+	cd docker
+	docker build . -t hercules:latest
+
+Your image named "hercules" should be ready. You can run hercules using this image by
+
+	docker run --user=$UID -v /path/to/inputs:/input -v /path/to/outputdir:/output hercules [args]
+
+- ```[args]``` are usual arguments you would pass to hercules executable. Be careful about mapping. You need to specify folders respective to container directory structure.
+- You need to map host machine input and output directory to responding volume directories inside the container. These options are specified by '-v' argment.
+- Docker works with root user by default. "--user" option saves your outputs.
